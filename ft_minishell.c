@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 04:33:37 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/04/18 21:04:03 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/04/19 20:47:41 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,11 +76,12 @@ int	main(int ac, char **av, char **env)
 {
 	char	*line;
 	data_t	data;
-
+	t_list *t1 = NULL;
 	data.status = 0;
 	data.in = 0;
 	data.out = 1;
 	(void)av;
+	(void)env;
 	if (ac != 1)
 		return (1);
 	while (1)
@@ -88,7 +89,11 @@ int	main(int ac, char **av, char **env)
 		ft_pwd(0, &data);
 		line = readline(" ");
 		add_history(line);
-		ft_exec(line, env, &data);
+		t1 = split_co(line);
+		ft_nested_pip(t1);
+			
+		// exit(0);
+		// ft_exec(line, env, &data);
 		// void ft_exec(line , char **env, data_t *data)
 	}
 	return (0);

@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 04:34:29 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/04/18 22:34:29 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/04/19 20:31:30 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,11 @@ typedef struct Data
 	int ex;
 	int ex1;
 	int red;
+	int pid;
 }			data_t;
-
+t_list *    ft_split_linked_pip(char *line , char c , int flag);
+void ft_nested_pip(t_list *head);
+t_list	*split_co(char *str);
 void ft_exec(char *line , char **env, data_t *data);
 void		split_line(char **command, t_list **redirec, t_list **cmd);
 t_list		*ft_split_command(char *line);

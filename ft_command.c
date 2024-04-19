@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/13 19:14:52 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/04/18 22:34:23 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/04/19 10:28:32 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -313,7 +313,6 @@ char	**create_command(t_list *head)
 
 void	ft_command(char *line, char **env, data_t *data)
 {
-	int		pid;
 	char	*cmd;
 	char	**command;
 	t_list	*redirec;
@@ -335,8 +334,8 @@ void	ft_command(char *line, char **env, data_t *data)
 	cmd = ft_check_command(command[0]);
 	if (cmd)
 	{
-		pid = fork();
-		if (pid == 0)
+		data->pid = fork();
+		if (data->pid == 0)
 		{
 			dup2(data->in, 0);
 			dup2(data->out, 1);
@@ -350,6 +349,5 @@ void	ft_command(char *line, char **env, data_t *data)
 		// printf("Error (Wa Tga3d a Regragui)\n");
 		printf("Command '%s' not found.\n", command[0]);
 	}
-	wait(&data->status);
 	ft_free(command);
 }
