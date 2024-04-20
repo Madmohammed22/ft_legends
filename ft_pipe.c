@@ -97,20 +97,22 @@ t_list	*ft_split_linked_pip(char *str, char c, int flag)
 	int		i;
 	int		count;
 	t_list	*head;
+	int		count_par;
+
 	head = NULL;
 	i = 0;
-	int count_par = 0;
+	count_par = 0;
 	count = 0;
 	while (str[i])
 	{
-		if(str[i] == '(')
+		if (str[i] == '(')
 			count_par++;
-		else if(str[i] == ')')
+		else if (str[i] == ')')
 			count_par--;
 		if (str[i] == c && str[i + flag] == c && count_par == 0)
 		{
 			ft_lstadd_back(&head, ft_lstnew(ft_substr(str, i - count, count)));
-			ft_lstadd_back(&head, ft_lstnew("|"));
+			// ft_lstadd_back(&head, ft_lstnew("|"));
 			i += 2;
 			count = 0;
 		}
@@ -126,6 +128,8 @@ void	ft_pipe(char *str, char **env, data_t *data)
 	int		size;
 	int		i;
 	t_list	*command;
+	int		tmp;
+	int		status;
 
 	command = ft_split_linked_pip(str, '|', 0);
 	size = ft_lstsize(command);
@@ -155,15 +159,13 @@ void	ft_pipe(char *str, char **env, data_t *data)
 		i++;
 		command = command->next;
 	}
-	int tmp;
-	int status;
 	while (1)
 	{
 		status = wait(&tmp);
 		if (status == data->pid)
 			data->status = tmp;
 		else if (status == -1)
-			break;
+			break ;
 	}
 	ft_lstclear(&command, free);
 }

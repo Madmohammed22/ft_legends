@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/13 19:14:52 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/04/19 10:28:32 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/04/20 20:22:35 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,11 +182,15 @@ void	split_line(char **command, t_list **redirec, t_list **cmd)
 
 void	ft_display(t_list *ptr)
 {
+	printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
 	while (ptr)
 	{
-		printf("%s\n", (char *)ptr->content);
+		if (strcmp((char *)ptr->content, "||") != 0
+			&& strcmp((char *)ptr->content, "&&") != 0)
+			printf("%s\n", (char *)ptr->content);
 		ptr = ptr->next;
 	}
+	printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
 }
 
 void	ft_outfile(t_list *ptr, data_t *data)
@@ -315,22 +319,10 @@ void	ft_command(char *line, char **env, data_t *data)
 {
 	char	*cmd;
 	char	**command;
-	t_list	*redirec;
 	t_list	*handel_quotes;
-	t_list	*command_list;
 
-	redirec = NULL;
-	command_list = NULL;
 	handel_quotes = ft_handel_quotes(line);
 	command = create_command(handel_quotes);
-	split_line(command, &redirec, &command_list);
-	ft_outfile(redirec, data);
-	if (data->red == 1)
-	{
-		data->red = 0;
-		return ;
-	}
-	command = create_command(command_list);
 	cmd = ft_check_command(command[0]);
 	if (cmd)
 	{
@@ -343,11 +335,11 @@ void	ft_command(char *line, char **env, data_t *data)
 			perror("execve failing");
 		}
 	}
-	else
-	{
-		data->status = 127;
-		// printf("Error (Wa Tga3d a Regragui)\n");
-		printf("Command '%s' not found.\n", command[0]);
-	}
+	// else
+	// {
+	// 	data->status = 127;
+	// 	// printf("Error (Wa Tga3d a Regragui)\n");
+	// 	printf("Command '%s' not found.\n", command[0]);
+	// }
 	ft_free(command);
 }
