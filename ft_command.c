@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/13 19:14:52 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/04/20 20:22:35 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/04/21 19:59:18 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -335,11 +335,11 @@ void	ft_command(char *line, char **env, data_t *data)
 			perror("execve failing");
 		}
 	}
-	// else
-	// {
-	// 	data->status = 127;
-	// 	// printf("Error (Wa Tga3d a Regragui)\n");
-	// 	printf("Command '%s' not found.\n", command[0]);
-	// }
+	else
+	{
+		data->status = 127;
+		// printf("Error (Wa Tga3d a Regragui)\n");
+		printf("Command '%s' not found.\n", command[0]);
+	}
 	ft_free(command);
 }

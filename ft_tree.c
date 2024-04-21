@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 16:27:06 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/04/20 20:31:43 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/04/21 19:58:58 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,13 +129,14 @@ t_list	*ft_nested_pip(char *line)
 		cmd = (char *)head->content;
 		if (strcmp(cmd, "||") != 0 && strcmp(cmd, "&&") != 0)
 		{
-			list = ft_split_linked_pip(cmd, '|', 0);
+			list = ft_split_linked_pip(cmd, '|');
 			head->new_list = list;
 			while (list)
 			{
 				if (ft_strchr((char *)list->content, '(') != NULL)
 				{
-					list->content = ft_strtrim((char *)list->content, "()");
+					list->x = 1;
+					list->content = ft_strtrim((char *)list->content, "() |");
 					list->new_list = ft_nested_pip((char *)list->content);
 				}
 				list = list->next;
@@ -156,9 +157,8 @@ void	ft_pipe_x(char *str, char **env, data_t *data)
 	int		tmp;
 	int		status;
 
-	command = ft_split_linked_pip(str, '|', 0);
+	command = ft_split_linked_pip(str, '|');
 	size = ft_lstsize(command);
-	
 	i = 0;
 	while (i < size)
 	{
@@ -169,9 +169,7 @@ void	ft_pipe_x(char *str, char **env, data_t *data)
 		}
 		else
 			data->out = 1;
-			
 		ft_command((char *)command->content, env, data);
-		
 		if (i != size - 1)
 		{
 			close(data->fd[1]);
@@ -191,23 +189,67 @@ void	ft_pipe_x(char *str, char **env, data_t *data)
 	ft_lstclear(&command, free);
 }
 
-void	ft_nested_pip_ex(t_list *head, char **env, data_t *data)
+void	ft_nested_pip_ex(t_list *head, char **env, data_t *data, int fd1,
+		int fd0)
 {
-	
+	int	tmp;
+	int	status;
+
+	data->out = fd1;
+	data->in = fd0;
 	while (head)
 	{
-		while (head->new_list)
+		if (strcmp((char *)head->content, "&&") == 0)
 		{
-			if (strcmp((char *)head->new_list->content, "|") != 0)
+			if (data->status == 0)
 			{
-				if(strcmp((char *)head->new_list->next->content, "|"))
-					{
-						
-					}
-				ft_pipe_x((char *)head->new_list->content, env, data);
+				data->out = 1;
+				data->in = 0;
+				data->exec = 0;
 			}
-			printf("%d\n" , data->in);
-			head->new_list = head->new_list->next;
+			else
+				data->exec = 1;
+		}
+		else if (strcmp((char *)head->content, "||") == 0)
+		{
+			if (data->status != 0)
+			{
+				data->out = 1;
+				data->in = 0;
+				data->exec = 0;
+			}
+			else
+				data->exec = 1;
+		}
+		else
+		{
+			if (data->exec == 0)
+			{
+				while (head->new_list)
+				{
+					pipe(data->fd);
+					data->out = data->fd[1];
+					if (head->new_list->next == NULL)
+						data->out = 1;
+					if (head->new_list->x == 1)
+						ft_nested_pip_ex(head->new_list->new_list, env, data,
+							data->out, data->in);
+					else
+						ft_command((char *)head->new_list->content, env, data);
+					close(data->fd[1]);
+					data->in = data->fd[0];
+					head->new_list = head->new_list->next;
+				}
+				while (1)
+				{
+					status = wait(&tmp);
+					if (status == data->pid)
+						data->status = tmp;
+					else if (status == -1)
+						break ;
+					ft_lstclear(&head->new_list, free);
+				}
+			}
 		}
 		head = head->next;
 	}

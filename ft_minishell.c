@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 04:33:37 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/04/20 20:17:50 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/04/21 17:29:36 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,8 +82,7 @@ int	main(int ac, char **av, char **env)
 	data.status = 0;
 	data.in = 0;
 	data.out = 1;
-
-
+	data.exec = 0;
 	(void)av;
 	(void)env;
 	if (ac != 1)
@@ -92,9 +91,14 @@ int	main(int ac, char **av, char **env)
 	{
 		ft_pwd(0, &data);
 		line = readline(" ");
+		if (!line)
+		{
+			printf("exit\n");
+			return (0);
+		}
 		add_history(line);
 		head = ft_nested_pip(line);
-		ft_nested_pip_ex(head, env, &data);
+		ft_nested_pip_ex(head, env, &data, 1, 0);
 	}
 	return (0);
 }
