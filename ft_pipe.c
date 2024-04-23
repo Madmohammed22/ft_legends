@@ -149,7 +149,8 @@ void	ft_pipe(char *str, char **env, data_t *data)
 		}
 		else
 			data->out = 1;
-		ft_command((char *)command->content, env, data);
+		ft_command((char *)command->content, env, data, data->out, data->in,
+			data->fd[0]);
 		data->ex = data->in;
 		data->ex1 = data->out;
 		if (i != size - 1)

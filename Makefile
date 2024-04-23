@@ -1,5 +1,8 @@
 
 
+
+# ls | (wc | ( wc | cat && wc ) | wc )
+#
 NAME = minishell
 
 
@@ -10,7 +13,7 @@ OBJECTS = $(SRC:.c=.o)
 
 CC = gcc
 
-CFLAGS =  -lreadline -g3 -no-pie -Wall -Wextra -Werror   -fsanitize=address -Wall -Wextra -Werror 
+CFLAGS =    -lreadline -no-pie -Wall -Wextra -Werror  # -fsanitize=address 
 
 all: $(NAME) 
 
@@ -18,7 +21,7 @@ all: $(NAME)
 $(NAME): $(OBJECTS) 
 	@make -s -C libft
 	@make bonus -s -C libft 
-	@$(CC) $(CFLAGS)	$(SRC) libft/libft.a -o $(NAME)
+	@$(CC) 	$(SRC) $(CFLAGS) libft/libft.a -o $(NAME)
 	@rm -rf *.o > /dev/null
 
 %.o: %.c
@@ -33,7 +36,8 @@ fclean: clean
 	@rm -rf ./minishell
 
 re: fclean all
-
+run:all
+	python3 -m c_formatter_42 *.c && clear && ./minishell
 .PHONY: all clean  fclean re bonus
 
 .SECONDARY: $(OBJECTS)

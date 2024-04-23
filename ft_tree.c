@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 16:27:06 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/04/21 19:58:58 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/04/23 18:18:51 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,7 +169,8 @@ void	ft_pipe_x(char *str, char **env, data_t *data)
 		}
 		else
 			data->out = 1;
-		ft_command((char *)command->content, env, data);
+		ft_command((char *)command->content, env, data, data->fd[1], data->in,
+			data->fd[0]);
 		if (i != size - 1)
 		{
 			close(data->fd[1]);
@@ -194,7 +195,9 @@ void	ft_nested_pip_ex(t_list *head, char **env, data_t *data, int fd1,
 {
 	int	tmp;
 	int	status;
+	int	fd[2];
 
+	data->exec = 0;
 	data->out = fd1;
 	data->in = fd0;
 	while (head)
@@ -203,52 +206,69 @@ void	ft_nested_pip_ex(t_list *head, char **env, data_t *data, int fd1,
 		{
 			if (data->status == 0)
 			{
-				data->out = 1;
-				data->in = 0;
+				printf("--%d %d--\n", fd1, fd0);
+				data->out = fd1;
+				data->in = fd0;
 				data->exec = 0;
 			}
 			else
 				data->exec = 1;
+			head = head->next;
 		}
 		else if (strcmp((char *)head->content, "||") == 0)
 		{
 			if (data->status != 0)
 			{
-				data->out = 1;
-				data->in = 0;
+				data->in = fd0;
+				data->out = fd1;
 				data->exec = 0;
 			}
 			else
 				data->exec = 1;
+			head = head->next;
 		}
-		else
+		if (data->exec == 0)
 		{
-			if (data->exec == 0)
+			while (head->new_list)
 			{
-				while (head->new_list)
+				if (head->new_list->next != NULL)
 				{
-					pipe(data->fd);
-					data->out = data->fd[1];
-					if (head->new_list->next == NULL)
-						data->out = 1;
-					if (head->new_list->x == 1)
-						ft_nested_pip_ex(head->new_list->new_list, env, data,
-							data->out, data->in);
-					else
-						ft_command((char *)head->new_list->content, env, data);
-					close(data->fd[1]);
-					data->in = data->fd[0];
-					head->new_list = head->new_list->next;
+					pipe(fd);
+					data->out = fd[1];
 				}
-				while (1)
+				else
+					data->out = fd1;
+				if (head->new_list->x == 1)
+					ft_nested_pip_ex(head->new_list->new_list, env, data,
+						data->out, data->in);
+				else
 				{
-					status = wait(&tmp);
-					if (status == data->pid)
-						data->status = tmp;
-					else if (status == -1)
-						break ;
-					ft_lstclear(&head->new_list, free);
+					printf("-%d %d-\n", data->out, data->in);
+					ft_command((char *)head->new_list->content, env, data,
+						data->out, data->in, fd[0]);
 				}
+				if (head->new_list->next != NULL)
+				{
+					close(fd[1]);
+					if (data->in != 0)
+						close(data->in);
+					data->in = fd[0];
+				}
+				else
+				{
+					if (data->in != 0)
+						close(data->in);
+				}
+				head->new_list = head->new_list->next;
+			}
+			while (1)
+			{
+				status = wait(&tmp);
+				if (status == data->pid)
+					data->status = tmp;
+				else if (status == -1)
+					break ;
+				ft_lstclear(&head->new_list, free);
 			}
 		}
 		head = head->next;

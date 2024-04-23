@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 04:34:29 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/04/21 17:45:22 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/04/23 16:10:09 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ void		reset(void);
 void		ft_pwd(int flags, data_t *data);
 void		ft_pipe(char *str, char **env, data_t *data);
 
-void		ft_command(char *line, char **env, data_t *data);
+void	ft_command(char *line, char **env, data_t *data , int fd1 ,int fd0 , int cls);
 t_list		*ft_search_node(t_list *list, char *str);
 t_list		*ft_handel_quotes(char *command);
 int			ft_cd(char **command, flag_t **flag);

@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/16 15:05:10 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/04/16 15:05:37 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/04/22 18:46:48 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void	ft_pipe(t_list *command, char **env, data_t *data)
 		}
 		else
 			data->out = 1;
-		ft_command((char *)command->content, env, data);
+		ft_command((char *)command->content, env, data, data->in);
 		if (i != size - 1)
 		{
 			close(data->fd[1]);

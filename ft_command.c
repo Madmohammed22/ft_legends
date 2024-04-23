@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/13 19:14:52 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/04/21 19:59:18 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/04/23 18:22:47 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -315,7 +315,8 @@ char	**create_command(t_list *head)
 	return (command);
 }
 
-void	ft_command(char *line, char **env, data_t *data)
+void	ft_command(char *line, char **env, data_t *data, int fd1, int fd0,
+		int cls)
 {
 	char	*cmd;
 	char	**command;
@@ -329,8 +330,17 @@ void	ft_command(char *line, char **env, data_t *data)
 		data->pid = fork();
 		if (data->pid == 0)
 		{
-			dup2(data->in, 0);
-			dup2(data->out, 1);
+			if (fd0 != STDIN_FILENO)
+			{
+				dup2(fd0, STDIN_FILENO);
+				close(fd0);
+			}
+			if (fd1 != STDOUT_FILENO)
+			{
+				dup2(fd1, STDOUT_FILENO);
+				close(cls);
+				close(fd1);
+			}
 			execve(cmd, command, env);
 			perror("execve failing");
 		}
@@ -338,7 +348,6 @@ void	ft_command(char *line, char **env, data_t *data)
 	else
 	{
 		data->status = 127;
-		// printf("Error (Wa Tga3d a Regragui)\n");
 		printf("Command '%s' not found.\n", command[0]);
 	}
 	ft_free(command);
