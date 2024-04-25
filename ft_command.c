@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/13 19:14:52 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/04/23 18:22:47 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/04/24 09:23:55 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,8 +139,8 @@ int	ft_build(char **command, t_list *list, flag_t *flag, int out)
 		ft_export(command, &list, flag);
 	else if (strcmp(command[0], "env") == 0)
 		ft_env(list, out);
-	else if (strcmp(command[0], "cd") == 0)
-		ft_cd(command, &flag);
+	// else if (strcmp(command[0], "cd") == 0)
+	// 	ft_cd(command, &flag);
 	// else if (strcmp(command[0], "pwd") == 0)
 	// 	ft_pwd(3);
 	else if (strcmp(command[0], "exit") == 0)

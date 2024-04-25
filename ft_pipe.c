@@ -98,18 +98,29 @@ t_list	*ft_split_linked_pip(char *str, char c)
 	int		count;
 	t_list	*head;
 	int		count_par;
-
+	int count_qutes;
+	int count_sgl;
 	head = NULL;
 	i = 0;
 	count_par = 0;
+	count_qutes = 0;
 	count = 0;
+	count_sgl = 0;
 	while (str[i])
 	{
 		if (str[i] == '(')
 			count_par++;
 		else if (str[i] == ')')
 			count_par--;
-		if (str[i] == c && count_par == 0)
+		if(str[i] == 34 && count_qutes == 0)
+			count_qutes++;
+		else if(str[i] == 34)
+			count_qutes--;
+		if(str[i] == 39 && count_qutes == 0 && count_sgl == 0)
+			count_sgl++;
+		else if(str[i] == 39 && count_qutes == 0)
+			count_sgl--;
+		if (str[i] == c && !count_par && !count_sgl && !count_qutes)
 		{
 			ft_lstadd_back(&head, ft_lstnew(ft_strtrim(ft_substr(str, i - count,
 							count), "| ")));

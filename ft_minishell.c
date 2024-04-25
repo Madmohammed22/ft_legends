@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 04:33:37 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/04/23 18:22:02 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/04/24 15:53:00 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,33 @@ int	main(int ac, char **av, char **env)
 		}
 		add_history(line);
 		head = ft_nested_pip(line);
-		ft_nested_pip_ex(head, env, &data, STDOUT_FILENO, STDIN_FILENO);
+		ft_print_tree(head);
+
+		// ft_display(head);
+		// ft_nested_pip_ex(head, env, &data, STDOUT_FILENO, STDIN_FILENO);
 	}
 	return (0);
 }
+
+// int main()
+// {
+// 	int pid;
+// 			char s[100];
+// 	pid = fork();
+// 	if(pid == 0)
+// 	{
+
+// 			printf("%s\n", getcwd(s, 100));
+
+//     // using the command
+//     chdir("..");
+
+//     // printing current working directory
+//     printf("%s\n", getcwd(s, 100));
+// 	}
+// 	wait(NULL);
+//     printf("--%s\n", getcwd(s, 100));
+
+//     // printing current working directory
+
+// }

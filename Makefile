@@ -2,6 +2,7 @@
 
 
 # ls | (wc | ( wc | cat && wc ) | wc )
+#    list->content = ft_strtrim((char *)list->content, "() |");  Error
 #
 NAME = minishell
 
