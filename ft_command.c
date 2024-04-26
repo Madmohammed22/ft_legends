@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/13 19:14:52 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/04/26 17:26:02 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/04/26 19:07:33 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ t_list	*ft_new_split(char *str, t_quotes data)
 	int		count;
 	char	*cmd;
 	t_list	*head;
-
+	char *s;
 	i = 0;
 	count = 0;
 	cmd = NULL;
@@ -87,7 +87,11 @@ t_list	*ft_new_split(char *str, t_quotes data)
 	{
 		ft_check_quotes(str[i], &data);
 		if (str[i] == ' ' && data.count_qutes == 0 && !data.count_sgl)
-			cmd = ft_strtrim(ft_substr(str, i - count, count), " ");
+		{
+			s = ft_strtrim(ft_substr(str, i - count, count), " ");
+			if(s[0])
+				cmd = s;
+		}
 		if (cmd)
 		{
 			ft_lstadd_back(&head, ft_lstnew(cmd));
@@ -198,8 +202,7 @@ void	ft_print(char **arr)
 	}
 }
 
-void	ft_command(char *line, char **env, t_data *data, int fd1, int fd0,
-		int cls)
+void	ft_command(char *line, char **env, t_data *data, int fd1, int fd0, int cls)
 {
 	char		*cmd;
 	char		**command;
@@ -211,7 +214,8 @@ void	ft_command(char *line, char **env, t_data *data, int fd1, int fd0,
 	initialize(&dataa);
 	command = last_command(ft_new_split(line, dataa));
 	ft_print(command);
-	exit(0);
+	return;
+	exit(0);		
 	if (strcmp(command[0], "cd") == 0)
 		chdir(command[1]);
 	else
