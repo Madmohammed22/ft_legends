@@ -6,32 +6,11 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/13 19:14:52 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/04/24 09:23:55 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/04/26 17:26:02 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_minishell.h"
-
-int	ft_search(char *str, char c)
-{
-	int	i;
-
-	i = 0;
-	while (str[i])
-	{
-		if (str[i] == c)
-			return (1);
-		i++;
-	}
-	return (0);
-}
-
-int	ft_check_script(char *str, char *type)
-{
-	if (strcmp(type, ft_strrchr(str, '.')) == 0)
-		return (0);
-	return (1);
-}
 
 char	*ft_check_command(char *command)
 {
@@ -41,6 +20,8 @@ char	*ft_check_command(char *command)
 	char	**bins;
 	int		i;
 
+	if (command[0] == 0)
+		return (NULL);
 	env_path = getenv("PATH");
 	bins = ft_split(env_path, ':');
 	i = 0;
@@ -58,128 +39,6 @@ char	*ft_check_command(char *command)
 	return (NULL);
 }
 
-int	ft_count(char **av)
-{
-	int	i;
-
-	i = 0;
-	while (av[i])
-		i++;
-	return (i);
-}
-
-int	ft_count_character(char *str, char c)
-{
-	int	i;
-	int	count;
-
-	i = 0;
-	while (str[i])
-	{
-		if (str[i] == c)
-			count++;
-		i++;
-	}
-	return (count);
-}
-
-char	**ft_handel_Tilde(char **command)
-{
-	int		i;
-	char	**new_command;
-	char	*path_tilde;
-
-	i = 0;
-	new_command = (char **)malloc(sizeof(char *) * (ft_count(command) + 1));
-	path_tilde = getenv("HOME");
-	while (command[i])
-	{
-		if (command[i][0] == '~')
-			new_command[i] = ft_strjoin(path_tilde, &command[i][1]);
-		else
-			new_command[i] = ft_strdup(command[i]);
-		i++;
-	}
-	new_command[i] = NULL;
-	return (ft_free(command), new_command);
-}
-
-char	**ft_handel_dollar(char **command)
-{
-	int		i;
-	char	*var;
-	char	**new_split;
-
-	i = 0;
-	new_split = (char **)malloc(sizeof(char *) * (ft_count(command) + 1));
-	while (command[i])
-	{
-		var = getenv(&command[i][1]);
-		if (var != NULL)
-			new_split[i] = ft_strdup(var);
-		else
-			new_split[i] = ft_strdup(command[i]);
-		i++;
-	}
-	new_split[i] = NULL;
-	ft_free(command);
-	return (new_split);
-}
-
-int	ft_build(char **command, t_list *list, flag_t *flag, int out)
-{
-	// dup2(out , 1);
-	if (command[0] == NULL)
-		return (0);
-	if (strcmp(command[0], "echo") == 0 && strcmp(command[1], "$?") == 0)
-		printf("%d\n", flag->status);
-	else if (strcmp(command[0], "echo") == 0)
-		ft_echo(command);
-	else if (strcmp(command[0], "export") == 0)
-		ft_export(command, &list, flag);
-	else if (strcmp(command[0], "env") == 0)
-		ft_env(list, out);
-	// else if (strcmp(command[0], "cd") == 0)
-	// 	ft_cd(command, &flag);
-	// else if (strcmp(command[0], "pwd") == 0)
-	// 	ft_pwd(3);
-	else if (strcmp(command[0], "exit") == 0)
-		return (exit(ft_atoi(command[1])), 0);
-	else if (strcmp(command[0], "unset") == 0)
-		ft_unset(&list, command);
-	else
-		return (1);
-	return (0);
-}
-
-void	split_line(char **command, t_list **redirec, t_list **cmd)
-{
-	char	*join;
-	char	*join_command;
-	int		i;
-
-	i = 0;
-	while (command[i])
-	{
-		if (strcmp(command[i], ">>") == 0 || strcmp(command[i], ">") == 0
-			|| strcmp(command[i], "<<") == 0 || strcmp(command[i], "<") == 0)
-		{
-			if (strcmp(command[i], "<<") == 0 || strcmp(command[i], "<") == 0
-				|| strcmp(command[i], ">>") == 0 || strcmp(command[i],
-					">") == 0)
-			{
-				join = ft_strjoin(command[i], " ");
-				join_command = ft_strjoin(join, command[i + 1]);
-				ft_lstadd_back(redirec, ft_lstnew(join_command));
-				i++;
-			}
-		}
-		else
-			ft_lstadd_back(cmd, ft_lstnew(command[i]));
-		i++;
-	}
-}
-
 void	ft_display(t_list *ptr)
 {
 	printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
@@ -192,108 +51,6 @@ void	ft_display(t_list *ptr)
 	}
 	printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
 }
-
-void	ft_outfile(t_list *ptr, data_t *data)
-{
-	char	**split;
-	int		outfile;
-	int		intfile;
-	int		fd[2];
-
-	outfile = data->out;
-	intfile = data->in;
-	pipe(fd);
-	if (ptr == NULL)
-		return ;
-	while (ptr)
-	{
-		split = ft_split((char *)ptr->content, ' ');
-		if (strcmp(split[0], ">>") == 0)
-			outfile = access_outfile_herdoc(split[1]);
-		else if (strcmp(split[0], ">") == 0)
-			outfile = access_outfile(split[1]);
-		else if (strcmp(split[0], "<") == 0)
-			intfile = access_intfile(split[1]);
-		else if (strcmp(split[0], "<<") == 0)
-		{
-			ft_read_heredoc(ft_strjoin(split[1], "\n"), fd[1]);
-			close(fd[1]);
-			intfile = fd[0];
-		}
-		ptr = ptr->next;
-	}
-	if (intfile == 0 || outfile == 0)
-	{
-		data->red = 1;
-		printf("bash: %s: Permission denied\n", split[1]);
-		data->in = data->ex;
-		data->out = data->ex1;
-		return ;
-	}
-	else
-		data->in = intfile;
-	data->out = outfile;
-}
-
-char	**split_string(char *str)
-{
-	int		i;
-	int		count;
-	int		j;
-	char	**command;
-	int		w;
-
-	i = 0;
-	count = 0;
-	while (str[i])
-	{
-		if ((str[i] == '>' || str[i] == '<'))
-		{
-			if (str[i + 1] == str[i])
-				count++;
-		}
-		else if (!(str[i] == '>' || str[i] == '<') && (str[i + 1] == '>'
-				|| str[i + 1] == '<' || !str[i + 1]))
-			count++;
-		i++;
-	}
-	i = 0;
-	command = malloc((count + 1) * sizeof(char *));
-	command[count] = NULL;
-	w = 0;
-	while (str[i])
-	{
-		if ((str[i] == '>' || str[i] == '<'))
-		{
-			j = 0;
-			while (str[i + j] == '<' || str[i + j] != '>')
-			{
-				command[w][j] = str[i + j];
-				j++;
-			}
-			i += j;
-		}
-		else
-		{
-			j = 0;
-			while ((str[i + j] != '<' || str[i + j] != '>') && str[i + j])
-			{
-				command[w][j] = str[i + j];
-				j++;
-			}
-			i += j;
-		}
-		w++;
-	}
-	// exit(0);
-	// printf("hello");
-	return (command);
-}
-
-// char **split_redirection(char **command)
-// {
-// 	int i = 0;
-// }
 
 char	**create_command(t_list *head)
 {
@@ -315,40 +72,176 @@ char	**create_command(t_list *head)
 	return (command);
 }
 
-void	ft_command(char *line, char **env, data_t *data, int fd1, int fd0,
-		int cls)
+t_list	*ft_new_split(char *str, t_quotes data)
 {
+	int		i;
+	int		count;
 	char	*cmd;
-	char	**command;
-	t_list	*handel_quotes;
+	t_list	*head;
 
-	handel_quotes = ft_handel_quotes(line);
-	command = create_command(handel_quotes);
-	cmd = ft_check_command(command[0]);
-	if (cmd)
+	i = 0;
+	count = 0;
+	cmd = NULL;
+	head = NULL;
+	while (str[i])
 	{
-		data->pid = fork();
-		if (data->pid == 0)
+		ft_check_quotes(str[i], &data);
+		if (str[i] == ' ' && data.count_qutes == 0 && !data.count_sgl)
+			cmd = ft_strtrim(ft_substr(str, i - count, count), " ");
+		if (cmd)
 		{
-			if (fd0 != STDIN_FILENO)
-			{
-				dup2(fd0, STDIN_FILENO);
-				close(fd0);
-			}
-			if (fd1 != STDOUT_FILENO)
-			{
-				dup2(fd1, STDOUT_FILENO);
-				close(cls);
-				close(fd1);
-			}
-			execve(cmd, command, env);
-			perror("execve failing");
+			ft_lstadd_back(&head, ft_lstnew(cmd));
+			count = 0;
+			cmd = NULL;
+		}
+		count++;
+		i++;
+	}
+	cmd = ft_strtrim(ft_substr(str, i - count, count), " ");
+	ft_lstadd_back(&head, ft_lstnew(cmd));
+	return (head);
+}
+
+char	*ft_new_strjoin(char *str, char c)
+{
+	int		i;
+	char	*join;
+
+	if (!str)
+		i = 0;
+	else
+		i = ft_strlen(str);
+	join = malloc(i + 2);
+	i = 0;
+	if (str != NULL)
+	{
+		while (str[i])
+		{
+			join[i] = str[i];
+			i++;
 		}
 	}
+	if (c == 0)
+		join[i] = c;
 	else
 	{
-		data->status = 127;
-		printf("Command '%s' not found.\n", command[0]);
+		join[i] = c;
+		i++;
+		join[i] = 0;
+	}
+	return (join);
+}
+
+char	*ft_remove(char *str)
+{
+	int		i;
+	char	*join;
+	char	c;
+
+	i = 0;
+	join = NULL;
+	while (str[i])
+	{
+		if (str[i] == 34 || str[i] == 39)
+			c = str[i];
+		if (str[i] == c)
+		{
+			if (str[i + 1] == c)
+				join = ft_new_strjoin(join, 0);
+			else
+			{
+				while (str[++i] != c)
+					join = ft_new_strjoin(join, str[i]);
+				i--;
+			}
+			i += 2;
+		}
+		else
+		{
+			join = ft_new_strjoin(join, str[i]);
+			i++;
+		}
+	}
+	return (join);
+}
+
+char	**last_command(t_list *head)
+{
+	int		i;
+	int		size;
+	char	**arr;
+
+	i = 0;
+	size = ft_lstsize(head);
+	arr = malloc(sizeof(char *) * (size + 1));
+	while (head)
+	{
+		arr[i] = ft_remove((char *)head->content);
+		if (arr[i] == NULL)
+			return (NULL);
+		i++;
+		head = head->next;
+	}
+	arr[i] = NULL;
+	return (arr);
+}
+
+void	ft_print(char **arr)
+{
+	int	i;
+
+	i = 0;
+	while (arr[i])
+	{
+		printf("%s\n", arr[i]);
+		i++;
+	}
+}
+
+void	ft_command(char *line, char **env, t_data *data, int fd1, int fd0,
+		int cls)
+{
+	char		*cmd;
+	char		**command;
+	t_quotes	dataa;
+
+	if (!ft_strtrim(line, " \n")[0])
+		return ;
+	command = NULL;
+	initialize(&dataa);
+	command = last_command(ft_new_split(line, dataa));
+	ft_print(command);
+	exit(0);
+	if (strcmp(command[0], "cd") == 0)
+		chdir(command[1]);
+	else
+	{
+		cmd = ft_check_command(command[0]);
+		if (cmd)
+		{
+			data->pid = fork();
+			if (data->pid == 0)
+			{
+				if (fd0 != STDIN_FILENO)
+				{
+					dup2(fd0, STDIN_FILENO);
+					close(fd0);
+				}
+				if (fd1 != STDOUT_FILENO)
+				{
+					dup2(fd1, STDOUT_FILENO);
+					close(cls);
+					close(fd1);
+				}
+				execve(cmd, command, env);
+				perror("execve failing");
+			}
+		}
+		else
+		{
+			data->status = 127;
+			printf("Command '%s' not found.\n", command[0]);
+		}
 	}
 	ft_free(command);
 }

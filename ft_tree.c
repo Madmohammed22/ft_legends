@@ -6,68 +6,49 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 16:27:06 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/04/25 10:59:40 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/04/26 16:22:20 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_minishell.h"
 
-typedef struct s_tree
+void	ft_check_quotes(char c, t_quotes *data)
 {
-	char			*data;
-	struct s_tree	*left;
-	struct s_tree	*right;
-	// t_list * right;
-}					t_tree;
-
-void	ft_display1(t_list *ptr)
-{
-	while (ptr)
-	{
-		printf("%s\n", (char *)ptr->content);
-		ptr = ptr->next;
-	}
+	if (c == '(' && !data->count_qutes && !data->count_sgl)
+		data->count_par++;
+	else if (c == ')' && !data->count_qutes && !data->count_sgl)
+		data->count_par--;
+	if (c == 34 && !data->count_qutes)
+		data->count_qutes++;
+	else if (c == 34)
+		data->count_qutes--;
+	if (c == 39 && !data->count_qutes && !data->count_sgl)
+		data->count_sgl++;
+	else if (c == 39 && !data->count_qutes)
+		data->count_sgl--;
 }
 
 t_list	*split_end_or(char *str)
 {
-	int		i;
-	int		count;
-	char	*cmd;
-	t_list	*head;
-	int		count_par;
-	int		count_qutes;
-	int count_sgl;
+	int			i;
+	int			count;
+	char		*cmd;
+	t_list		*head;
+	t_quotes	data;
+
 	cmd = NULL;
 	head = NULL;
 	i = 0;
-	count_par = 0;
-	count_qutes = 0;
-	count_sgl = 0;
+	initialize(&data);
 	count = 0;
 	while (str[i])
 	{
-		
-		if (str[i] == '(' && !count_qutes && !count_sgl)
-			count_par++;
-		else if (str[i] == ')' && !count_qutes && !count_sgl)
-			count_par--;
-		if(str[i] == 34 && !count_qutes)
-			count_qutes++;
-		else if(str[i] == 34)
-			count_qutes--;
-		if(str[i] == 39 && !count_qutes && !count_sgl)
-			count_sgl++;
-		else if(str[i] == 39 && !count_qutes)
-			count_sgl--;
-		
-		if (str[i] == '|' && str[i + 1] == '|' && !count_par && !count_qutes  && !count_sgl)
-		{
-				
-			printf("%d %d\n" ,i ,  count_qutes);
+		ft_check_quotes(str[i], &data);
+		if (str[i] == '|' && str[i + 1] == '|' && !data.count_par
+			&& !data.count_qutes && !data.count_sgl)
 			cmd = ft_strtrim(ft_substr(str, i - count, count), " ");
-		}
-		else if (str[i] == '&' && str[i + 1] == '&' && !count_par 	 && !count_qutes && !count_sgl)
+		else if (str[i] == '&' && str[i + 1] == '&' && !data.count_par
+			&& !data.count_qutes && !data.count_sgl)
 			cmd = ft_strtrim(ft_substr(str, i - count, count), " ");
 		if (cmd)
 		{
@@ -86,54 +67,57 @@ t_list	*split_end_or(char *str)
 	return (head);
 }
 
-t_tree	*ft_creat_three(char *value)
-{
-	t_tree	*new_tree;
-
-	new_tree = (t_tree *)malloc(sizeof(t_tree));
-	if (!new_tree)
-		return (NULL);
-	new_tree->data = value;
-	new_tree->left = NULL;
-	new_tree->right = NULL;
-	return (new_tree);
-}
-
 void	ft_print_tree(t_list *head)
 {
 	if (!head)
 		return ;
 	while (head)
 	{
-		while(head->new_list)
+		while (head->new_list)
 		{
-			
-		if(head->new_list->x == 1)
-			ft_print_tree(head->new_list->new_list);
-		else
-			ft_display(head->new_list);
-		head->new_list = head->new_list->next;
+			if (head->new_list->x == 1)
+				ft_print_tree(head->new_list->new_list);
+			else
+				ft_display(head->new_list);
+			head->new_list = head->new_list->next;
 		}
-	head = head->next;
+		head = head->next;
 	}
 	printf("--------------------------------------------\n");
 }
 
+
+
+// // char	**last_command1()
+// {
+// 	int		i;
+// 	int		size;
+// 	char	**arr;
+
+// 	i = 0;
+// 	size = ft_lstsize(head);
+// 	arr = malloc(sizeof(char *) * (size + 1));
+// 	while (head)
+// 	{
+// 		arr[i] = ft_remove((char *)head->content);
+// 		if (arr[i] == NULL)
+// 			return (NULL);
+// 		i++;
+// 		head = head->next;
+// 	}
+// 	arr[i] = NULL;
+// 	return (arr);
+// }
+
 t_list	*ft_nested_pip(char *line)
 {
-	
-	static int	i = 0;
-	t_list		*head;
-	t_list		*new;
-	t_list		*list;
-	char		*cmd;
-
-	i++;
+	t_list	*head;
+	t_list	*new;
+	t_list	*list;
+	char	*cmd;
 	head = split_end_or(line);
 	new = head;
 	list = NULL;
-	ft_display(head);
-	exit(0);
 	while (head)
 	{
 		cmd = (char *)head->content;
@@ -156,42 +140,37 @@ t_list	*ft_nested_pip(char *line)
 			head->new_list = NULL;
 		head = head->next;
 	}
-	i--;
-	if (i == 0)
-		printf("--%d--\n", i);
 	return (new);
 }
 
-void	ft_pipe_x(char *str, char **env, data_t *data)
+void	check_eo(t_list *head, t_data *data, int fd1, int fd0)
 {
-	int		size;
-	int		i;
-	t_list	*command;
-	int		tmp;
-	int		status;
-
-	command = ft_split_linked_pip(str, '|');
-	size = ft_lstsize(command);
-	i = 0;
-	while (i < size)
+	if (strcmp((char *)head->content, "&&") == 0)
 	{
-		if (i != size - 1)
-		{
-			pipe(data->fd);
-			data->out = data->fd[1];
-		}
+		if (data->status == 0)
+			data->exec = 0;
 		else
-			data->out = 1;
-		ft_command((char *)command->content, env, data, data->fd[1], data->in,
-			data->fd[0]);
-		if (i != size - 1)
-		{
-			close(data->fd[1]);
-			data->in = data->fd[0];
-		}
-		i++;
-		command = command->next;
+			data->exec = 1;
 	}
+	else if (strcmp((char *)head->content, "||") == 0)
+	{
+		if (data->status != 0)
+			data->exec = 0;
+		else
+			data->exec = 1;
+	}
+	if (data->exec == 0)
+	{
+		data->out = fd1;
+		data->in = fd0;
+	}
+}
+
+void	wait_proccess(t_data *data)
+{
+	int	status;
+	int	tmp;
+
 	while (1)
 	{
 		status = wait(&tmp);
@@ -200,45 +179,20 @@ void	ft_pipe_x(char *str, char **env, data_t *data)
 		else if (status == -1)
 			break ;
 	}
-	ft_lstclear(&command, free);
 }
 
-void	ft_nested_pip_ex(t_list *head, char **env, data_t *data, int fd1,
+void	ft_nested_pip_ex(t_list *head, char **env, t_data *data, int fd1,
 		int fd0)
 {
-	int	tmp;
-	int	status;
 	int	fd[2];
+	int	p;
 
 	data->exec = 0;
 	data->out = fd1;
 	data->in = fd0;
 	while (head)
 	{
-		if (strcmp((char *)head->content, "&&") == 0)
-		{
-			if (data->status == 0)
-			{
-				data->out = fd1;
-				data->in = fd0;
-				data->exec = 0;
-			}
-			else
-				data->exec = 1;
-			head = head->next;
-		}
-		else if (strcmp((char *)head->content, "||") == 0)
-		{
-			if (data->status != 0)
-			{
-				data->in = fd0;
-				data->out = fd1;
-				data->exec = 0;
-			}
-			else
-				data->exec = 1;
-			head = head->next;
-		}
+		check_eo(head, data, fd1, fd0);
 		if (data->exec == 0)
 		{
 			while (head->new_list)
@@ -251,8 +205,16 @@ void	ft_nested_pip_ex(t_list *head, char **env, data_t *data, int fd1,
 				else
 					data->out = fd1;
 				if (head->new_list->x == 1)
-					ft_nested_pip_ex(head->new_list->new_list, env, data,
-						data->out, data->in);
+				{
+					p = fork();
+					if (p == 0)
+					{
+						ft_nested_pip_ex(head->new_list->new_list, env, data,
+							data->out, data->in);
+						data->status = 1;
+						exit(1);
+					}
+				}
 				else
 					ft_command((char *)head->new_list->content, env, data,
 						data->out, data->in, fd[0]);
@@ -270,15 +232,7 @@ void	ft_nested_pip_ex(t_list *head, char **env, data_t *data, int fd1,
 				}
 				head->new_list = head->new_list->next;
 			}
-			while (1)
-			{
-				status = wait(&tmp);
-				if (status == data->pid)
-					data->status = tmp;
-				else if (status == -1)
-					break ;
-				ft_lstclear(&head->new_list, free);
-			}
+			wait_proccess(data);
 		}
 		head = head->next;
 	}

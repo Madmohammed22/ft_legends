@@ -6,63 +6,11 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 23:19:20 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/04/18 22:24:02 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/04/26 16:03:22 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_minishell.h"
-
-int	ft_count_der(char **command)
-{
-	int	i;
-	int	count;
-
-	i = 0;
-	count = 0;
-	while (command[i])
-	{
-		if (command[i][0] == '<' || command[i][0] == '>')
-			count += 2;
-		else
-			count++;
-		i++;
-	}
-	return (count);
-}
-
-char	**ft_split_derection(char **command)
-{
-	int		i;
-	int		size;
-	int		h;
-	char	**arr;
-	int		j;
-
-	i = 0;
-	size = ft_count_der(command) + 1;
-	h = 1;
-	arr = (char **)malloc(sizeof(char *) * size);
-	j = 0;
-	while (command[i])
-	{
-		if (command[i][0] == '<' || command[i][0] == '>')
-		{
-			if (command[i][1] == command[i][0])
-			{
-				arr[j++] = ft_substr(command[i], 0, h);
-			}
-			arr[j++] = ft_strdup(&command[i][h]);
-		}
-		else
-		{
-			arr[j] = ft_strdup(command[i]);
-			j++;
-		}
-		i++;
-	}
-	arr[j] = NULL;
-	return (arr);
-}
 
 int	access_outfile_herdoc(char *path)
 {
@@ -102,4 +50,48 @@ int	access_outfile(char *path)
 		return (0);
 	fd = open(path, O_TRUNC | O_RDWR);
 	return (fd);
+}
+
+t_list	*ft_redic(char *line)
+{
+	int		i;
+	t_list	*head;
+	char	*join;
+	int		flag;
+	char	c;
+
+	i = 0;
+	head = NULL;
+	join = NULL;
+	flag = 0;
+	while (line[i])
+	{
+		if (line[i] == '>' || line[i] == '<')
+			c = line[i];
+		if (line[i] == c)
+		{
+			if (line[i + 1] == c)
+			{
+				ft_lstadd_back(&head, ft_lstnew(ft_substr(line, i, 2)));
+				i++;
+			}
+			else
+				ft_lstadd_back(&head, ft_lstnew(ft_substr(line, i, 1)));
+			i++;
+			while (line[i] != '<' && line[i] != '>' && line[i])
+			{
+				flag = 1;
+				join = ft_new_strjoin(join, line[i]);
+				i++;
+			}
+			if (flag == 1)
+			{
+				flag = 0;
+				ft_lstadd_back(&head, ft_lstnew(join));
+			}
+		}
+		else
+			return (NULL);
+	}
+	return (head);
 }

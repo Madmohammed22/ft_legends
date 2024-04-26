@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 04:34:29 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/04/23 21:22:23 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/04/26 15:33:40 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,89 +27,50 @@
 # include <sys/wait.h>
 # include <unistd.h>
 
-typedef struct flags
-{
-	int		status;
-	int		flag;
-	int		flag_rediction;
-}			flag_t;
-
-typedef struct files
-{
-	t_list	*outfile;
-	t_list	*intfile;
-
-}			files_t;
-
 typedef struct Data
 {
-	int		status;
-	int		fd[2];
-	int		in;
-	int		out;
-	int ex;
-	int ex1;
-	int red;
-	int pid;
-	int exec;
-}			data_t;
-void	ft_nested_pip_ex(t_list *head, char **env, data_t *data , int fd1 , int fd0);
-void ft_print_tree(t_list *head);
-t_list	*ft_split_linked_pip(char *str ,char c);
-t_list * ft_nested_pip(char *line);
-t_list	*split_end_or(char *str);
-void ft_exec(char *line , char **env, data_t *data);
-void		split_line(char **command, t_list **redirec, t_list **cmd);
-t_list		*ft_split_command(char *line);
-void		ft_print_list(t_list *head);
-t_list		*handel_qutes(char *command, char q);
-void		ft_close(int fd[][2], int size);
-void		ft_display(t_list *ptr);
-void		ft_stock_pipe(char *line, t_list **ptr);
-void		ft_stock_variables(t_list **head, char **env);
-int			ft_check(char *ss);
-int			ft_strlen1(char *str);
-char		*get_next_line(int fd);
-char		*ft_strjoin1(char *s1, char *s2);
-void		ft_read_heredoc(char *end, int fd);
-char		*ft_read_stdin(char *str);
-int			access_intfile(char *path);
-int			access_outfile(char *path);
-void		ft_echo(char **str);
-int			ft_check_script(char *str, char *type);
-char		**ft_mini_split(char *str);
-int			count_words(char *str);
-char		**value(char *str);
-int			ft_check(char *str);
-void		red(void);
-void		cyan(void);
-void		yellow(void);
-void		ft_print(char **str);
-void		reset(void);
-void		ft_pwd(int flags, data_t *data);
-void		ft_pipe(char *str, char **env, data_t *data);
+	int	status;
+	int	fd[2];
+	int	in;
+	int	out;
+	int	ex;
+	int	ex1;
+	int	red;
+	int	pid;
+	int	exec;
+}		t_data;
 
-void	ft_command(char *line, char **env, data_t *data , int fd1 ,int fd0 , int cls);
-t_list		*ft_search_node(t_list *list, char *str);
-t_list		*ft_handel_quotes(char *command);
-int			ft_cd(char **command);
-void		ft_free(char **str);
-char		*ft_check_command(char *cmd);
-char		**ft_handel_dollar(char **cmd);
-char		**ft_handel_Tilde(char **command);
-int			ft_count_character(char *str, char c);
-void		ft_Wildcards(char *cmd);
-void		ft_export(char **cmd, t_list **ptr, flag_t *flag);
-void		ft_unset_before(t_list **list, char *str);
-void		ft_unset(t_list **head, char **command);
-void		ft_env(t_list *exp, int out);
-void		ft_parse_commnad(char *cmd);
-int			ft_count(char **av);
-void		ft_exit(char *line);
-int			access_outfile_herdoc(char *path);
-char		**ft_handel_qutes(char *str);
-char		**ft_split_derection(char **command);
-int			ft_count_der(char **command);
-t_list		*return_command(char *line);
-void ren_all_line(char *line , char **env , data_t *data);
+typedef struct quotes
+{
+	int	count_par;
+	int	count_qutes;
+	int	count_sgl;
+}		t_quotes;
+
+void	ft_nested_pip_ex(t_list *head, char **env, t_data *data, int fd1,
+			int fd0);
+void	ft_print_tree(t_list *head);
+t_list	*ft_split_linked_pip(char *str, char c);
+t_list	*ft_nested_pip(char *line);
+t_list	*split_end_or(char *str);
+
+void	ft_display(t_list *ptr);
+int		access_intfile(char *path);
+int		access_outfile(char *path);
+void	red(void);
+void	cyan(void);
+void	yellow(void);
+void	reset(void);
+void	ft_pwd(int flags, t_data *data);
+void	ft_check_quotes(char c, t_quotes *data);
+void	ft_command(char *line, char **env, t_data *data, int fd1, int fd0,
+			int cls);
+t_list	*ft_new_split(char *str, t_quotes data);
+void	ft_free(char **str);
+char	*ft_check_command(char *cmd);
+void	ft_print(char **arr);
+char	**last_command(t_list *head);
+int		access_outfile_herdoc(char *path);
+void	initialize(t_quotes *data);
+char	*ft_new_strjoin(char *str, char c);
 #endif
